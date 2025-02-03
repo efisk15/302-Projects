@@ -121,7 +121,6 @@ int main(int argc, char **argv) {
   s = new Superball(argc, argv);
 
   DisjointSetByRankWPC ds(s->r * s->c);
-
   map<int, ScoreInfo> answers;
   analyze_superBall(s, ds, answers);
   cout << "Scoring sets:" << endl;
@@ -137,3 +136,4 @@ int main(int argc, char **argv) {
     }
   }
 }
+
