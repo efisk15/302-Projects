@@ -83,8 +83,12 @@ Superball::Superball(int argc, char **argv) {
   }
 }
 
-void analyze_superBall(Superball *s, DisjointSetByRankWPC ds,
-                       map<int, ScoreInfo> &answers) {
+vector<ScoreInfo> analyze_superBall(Superball *s, DisjointSetByRankWPC ds) {
+  ScoreInfo newVal;
+  newVal.location = 0;
+  newVal.number = 0;
+  newVal.color = ' ';
+  vector<ScoreInfo> answers(s->c*s->r, newVal);
   for (size_t i = 0; i < s->board.size(); i++) {
     if (s->board[i] != 46 && s->board[i] != 42) {
       if (int(i + s->c) < (s->c * s->r) && s->board[i] == s->board[i + s->c]) {
@@ -95,24 +99,21 @@ void analyze_superBall(Superball *s, DisjointSetByRankWPC ds,
       }
     }
   }
+  vector<int> validUnionNums;
   for (size_t i = 0; i < s->board.size(); i++) {
     if (s->board[i] != 46 && s->board[i] != 42) {
       if (s->goals[i]) {
-        ScoreInfo newVal;
-        newVal.location = i;
-        newVal.number = 0;
-        newVal.color = s->board[i];
-
-        answers.insert({ds.Find(i), newVal});
+        answers[ds.Find(i)].location = i;
+        answers[ds.Find(i)].color = s->board[i];
       }
     }
   }
   for (size_t i = 0; i < s->board.size(); i++) {
-    int key = ds.Find(i);
-    if (answers.find(key) != answers.end()) {
-      answers[key].number++;
+    if (s->board[i] != 46 && s->board[i] != 42) {
+      answers[ds.Find(i)].number++;
     }
   }
+  return answers;
 }
 
 int main(int argc, char **argv) {
@@ -122,18 +123,15 @@ int main(int argc, char **argv) {
 
   DisjointSetByRankWPC ds(s->r * s->c);
 
-  map<int, ScoreInfo> answers;
-  analyze_superBall(s, ds, answers);
+  vector<ScoreInfo> answers = analyze_superBall(s, ds);
   cout << "Scoring sets:" << endl;
-  for (map<int, ScoreInfo>::iterator answer = answers.begin();
-       answer != answers.end(); answer++) {
-    int j = answer->second.number;
-    if (j >= s->mss) {
-      int row = answer->second.location / s->c;
-      int cal = answer->second.location % s->c;
-      cout << "Size:" << setw(3) << answer->second.number
-           << "  Char: " << answer->second.color << "  Scoring Cell: " << row
-           << "," << cal << endl;
+  for (size_t i = 0; i < answers.size(); i++) {
+    if (answers[i].number >= s->mss && answers[i].location != 0) {
+      int row = answers[i].location / s->c;
+      int cal = answers[i].location % s->c;
+      cout << "Size:" << setw(3) << answers[i].number
+           << "  Char: " << answers[i].color << "  Scoring Cell: " << row << ","
+           << cal << endl;
     }
   }
 }
