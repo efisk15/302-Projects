@@ -13,24 +13,27 @@ int main(int argc, char *argv[]) {
   Graph *myGraph = new Graph();
   myGraph->createNode(" ", SOURCE);
   while (diceInput >> input) {
-    // cout << input << endl;
     myGraph->createNode(input, DICE);
   }
   while (wordInput >> input) {
     myGraph->createNode(input, WORD);
     myGraph->createNode(input, SINK);
-    // cout << input << endl;
-    if (!myGraph->makeConnections()) {
-      cout << "Cannot spell " << input << endl;
-      
+    if (myGraph->spellable()) {
+      bool comma = false;
+      for (size_t i = 0; i < myGraph->spellingIds.size(); i++) {
+        if (comma) {
+          cout << ",";
+        }
+        cout << myGraph->spellingIds[i] - 1;
+        comma = true;
+      }
+      cout << ": ";
     } else {
-      myGraph->spellable(true);
-      cout << input << endl;
+      cout << "Cannot spell ";
     }
-    // myGraph->printGraph();
+    cout << input << endl;
     myGraph->deleteHalfGraph();
   }
-  // myGraph->printGraph();
 
   diceInput.close();
   wordInput.close();

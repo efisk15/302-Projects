@@ -38,15 +38,14 @@ struct Node {
 class Graph {
   public:
     Graph();
-    ~Graph();
     vector<Node*> nodes;    // All nodes
     vector<int> spellingIds;// Used to print the dice nodes more easily
-    bool makeConnections();              // Function of interest.
-    bool spellable(bool);        // Check if all residual edges are set to 1.
+    bool BFS();              // Function of interest.
+    bool spellable();        // Check if all residual edges are set to 1.
     void deleteHalfGraph(); // Delete the word Nodes, edges other than between source and dice, and sink;
     void createNode(string, NODE_TYPE);
     int numDice;
-    void printGraph();
+    vector<Edge*> changedEdges;
 
 };
 
