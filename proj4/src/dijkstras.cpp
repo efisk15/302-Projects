@@ -13,74 +13,39 @@ struct Node {
   bool visited;
 };
 
-bool compareNodes(vector<Node>& matrixMap, int current, int lookAt) {
-  if (matrixMap[lookAt].visited == true) {
-    if (matrixMap[lookAt].lengthToNode + matrixMap[lookAt].value <
-        matrixMap[current].lengthToNode) {
-      matrixMap[current].lengthToNode =
-          matrixMap[lookAt].lengthToNode + matrixMap[lookAt].value;
-      matrixMap[current].previous = lookAt;
+void dijkstras(vector<Node> matrixMap, int start, int end, int size) {
+  int current, lookAt = 0;
+  vector<int> directions = {size, -1, 1, -size};
+  multimap<int, int> mmap;
+  mmap.insert(pair<int, int>(matrixMap[start].value, start));
+  while (true) {
+    if (mmap.size() == 0) {
+      break;
     }
-  } else {
-    if (matrixMap[lookAt].lengthToNode == 0) {
-      matrixMap[lookAt].lengthToNode =
-          matrixMap[current].value + matrixMap[current].lengthToNode;
-      matrixMap[lookAt].previous = current;
-      return true;
-    } else {
-      if (matrixMap[lookAt].lengthToNode >
-          matrixMap[current].value + matrixMap[current].lengthToNode) {
+    current = mmap.begin()->second;
+    mmap.erase(mmap.begin());
+    if (matrixMap[current].visited == true) {
+      continue;
+    }
+    for (int i = 0; i < 4; i++) {
+      lookAt = current + directions[i];
+      if (lookAt >= (size * size)) continue;
+      if (lookAt % size <= 0) continue;
+      if (lookAt <= -1) continue;
+
+      if (matrixMap[lookAt].lengthToNode == 0 ||
+          (matrixMap[lookAt].lengthToNode != 0 &&
+           matrixMap[lookAt].lengthToNode >
+               matrixMap[current].lengthToNode + matrixMap[current].value)) {
+        mmap.insert(pair<int, int>(
+            matrixMap[current].lengthToNode + matrixMap[current].value,
+            lookAt));
         matrixMap[lookAt].lengthToNode =
             matrixMap[current].value + matrixMap[current].lengthToNode;
         matrixMap[lookAt].previous = current;
       }
     }
-  }
-  return false;
-}
-void dijkstras(vector<Node> matrixMap, int start, int end, int size) {
-  int current = start;
-  matrixMap[start].lengthToNode = 0;
-  matrixMap[start].visited = true;
-  multimap<int, int> mmap;
-  // int k = 0;
-  mmap.insert(pair<int, int>(matrixMap[start].value, start));
-  while (true) {
-    mmap.erase(mmap.begin());
-    int lookAt = 0;
-    // check below
-    if ((current + size) < (size * size)) {
-      lookAt = current + size;
-      if (compareNodes(matrixMap, current, lookAt)) {
-        mmap.insert(pair<int, int>(matrixMap[lookAt].lengthToNode, lookAt));
-      };
-    }
-    // check to the right
-    if ((current + 1) % size > 0) {
-      lookAt = current + 1;
-      if (compareNodes(matrixMap, current, lookAt)) {
-        mmap.insert(pair<int, int>(matrixMap[lookAt].lengthToNode, lookAt));
-      };
-    }
-    // Check left: current - 1
-    if (current % size != 0) {
-      lookAt = current - 1;
-      if (compareNodes(matrixMap, current, lookAt)) {
-        mmap.insert(pair<int, int>(matrixMap[lookAt].lengthToNode, lookAt));
-      };
-    }
-    // Check above
-    if ((current - size) > -1) {
-      lookAt = current - size;
-      if (compareNodes(matrixMap, current, lookAt) == false) {
-        mmap.insert(pair<int, int>(matrixMap[lookAt].lengthToNode, lookAt));
-      };
-    }
     matrixMap[current].visited = true;
-    current = mmap.begin()->second;
-    if (mmap.size() == 0) {
-      break;
-    }
   }
 
   int totalLength = matrixMap[end].lengthToNode;
@@ -99,10 +64,9 @@ void dijkstras(vector<Node> matrixMap, int start, int end, int size) {
 }
 
 int main(int argc, char* argv[]) {
-  int nTypes;
+  int nTypes, val, sizeY, sizeX, startX, startY, endX, endY = 0;
   while (cin >> nTypes) {
     map<char, int> moveTypes;
-    int val;
     char name;
     vector<Node> matrixMap;
 
@@ -111,8 +75,6 @@ int main(int argc, char* argv[]) {
       cin >> val;
       moveTypes.insert({name, val});
     }
-    int sizeY;
-    int sizeX;
     cin >> sizeY;
     cin >> sizeX;
     char mapSpot;
@@ -124,7 +86,6 @@ int main(int argc, char* argv[]) {
       val.value = moveTypes[mapSpot];
       matrixMap.push_back(val);
     }
-    int startX, startY, endX, endY = 0;
     cin >> startX;
     cin >> startY;
     cin >> endX;
@@ -135,4 +96,3 @@ int main(int argc, char* argv[]) {
   }
   return 0;
 }
-
