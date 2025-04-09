@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
   string sequenceOne, sequenceTwo = "";
   while (cin >> sequenceOne) {
     cin >> sequenceTwo;
+    // Get data and values.
     int stringSizeOne = sequenceOne.size();
     int stringSizeTwo = sequenceTwo.size();
     vector<int> expansion(sequenceOne.size() + 2, 0);

@@ -5,7 +5,7 @@ PROGRAMS=	worddice
 
 all:            worddice
 
-worddice: worddice.cpp
+worddice: worddice.cpp graph.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:
