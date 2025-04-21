@@ -1,4 +1,12 @@
 // graph.h
+/* Project 5: Word Dice
+ * File: graph.h
+ * Name: Eli Fisk.
+ * Date: 4/21/2025
+ *
+ * Description:
+ * This file holds the structs and the class for network flow.
+ */
 
 #ifndef GRAPH_H
 #define GRAPH_H
@@ -7,7 +15,7 @@
 #include <vector>
 using namespace std;
 
-
+// Enum for node types
 enum NODE_TYPE {
   SOURCE,
   WORD,
@@ -24,6 +32,8 @@ struct Edge {
     int residual; // Start val: 0 -> e1r = opposite
 
 };
+
+// Node struct
 struct Node {
   int id;
   NODE_TYPE type;
@@ -31,20 +41,26 @@ struct Node {
   int visited;
   vector<bool> letters;
   vector<Edge*> edges;
-  Edge *backEdge; // What edge got me here.
+  Edge *backEdge;
   
 };
 
 class Graph {
   public:
     Graph();
-    vector<Node*> nodes;    // All nodes
-    vector<int> spellingIds;// Used to print the dice nodes more easily
-    bool BFS();              // Function of interest.
-    bool spellable();        // Check if all residual edges are set to 1.
-    void deleteHalfGraph(); // Delete the word Nodes, edges other than between source and dice, and sink;
+    vector<Node*> nodes;
+    // Used to print the dice nodes more easily
+    vector<int> spellingIds; 
+    // Return true if there is a path to the sink.
+    bool BFS();
+    // Check if all residual edges are set to 1.
+    bool spellable();
+    // Delete the word Nodes, the sink, and the edges between them as well as the edges between the word and dice nodes.
+    void deleteHalfGraph();
+    // Create nodes from input.
     void createNode(string, NODE_TYPE);
     int numDice;
+    // Keep track of the edges used in BFS.
     vector<Edge*> changedEdges;
 
 };
