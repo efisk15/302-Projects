@@ -1,0 +1,24 @@
+/* Project 5: Word Dice
+ * File: writeup.cpp
+ * Name: Eli Fisk.
+ * Date: 4/21/2025
+ *
+ * Description:
+ * I, Eli Fisk, wrote this program completely by myself.
+ */
+
+
+Questions:
+What is complexity of your implementation?
+
+A:
+Edmonds-Karp time complexity = O(V * E^2).
+
+Vertexes = Dice + Letters + 2.
+Edges = O(Dice * Letters).
+
+Simplifies to O(Dice * Letters ^ 2 + L ^ 3).
+
+This is because my implementation uses a vector of node structs and edges between them.
+
+Git Repo: https://github.com/efisk15/302-Projects
