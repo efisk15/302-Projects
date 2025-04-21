@@ -1,3 +1,11 @@
+/* Project 5: Word Dice
+ * File: graph.cpp
+ * Name: Eli Fisk.
+ * Date: 4/21/2025
+ *
+ * Description:
+ * This file holds supporting function for the graph class.
+ */
 #include "graph.h"
 
 #include <iostream>
@@ -11,6 +19,7 @@ Graph::Graph() {
   numDice = 0;
 }
 
+// Function to see if all of the edges connected to the sink are taken. If so, the word can be spelled.
 bool Graph::spellable() {
   while (BFS()) {
     Node* current;
@@ -19,6 +28,7 @@ bool Graph::spellable() {
 
     while (current->type != SOURCE) {
       pastCurrent = current;
+      // Flip the original and residual values on the edges that were crossed.
       if (current->backEdge->original == 0) {
         current->backEdge->original = 1;
         current->backEdge->residual = 0;
@@ -38,11 +48,14 @@ bool Graph::spellable() {
     }
   };
   bool isScoreble = true;
+  // See if the word is spellable.
   for (size_t i = 0; i < nodes[nodes.size() - 1]->edges.size(); i++) {
     if (nodes[nodes.size() - 1]->edges[i]->original != 1) {
       isScoreble = false;
     }
   }
+  // If the word is spellable, backtrack and find the paths between dice and word nodes to see
+  // how they matched up and add them to the spelling ids.
   if (isScoreble) {
     for (size_t i = 0; i < nodes[nodes.size() - 1]->edges.size(); i++) {
       Node* current = nodes[nodes.size() - 1]->edges[i]->to;
@@ -56,10 +69,14 @@ bool Graph::spellable() {
   }
   return isScoreble;
 }
+
+// Function to preform bfs.
 bool Graph::BFS() {
   Node* current = nodes[0];
   queue<Edge*> options;
   while (true) {
+
+    // Add all the travelable edges from the current node to a queue.
     current->visited = true;
     for (size_t i = 0; i < current->edges.size(); i++) {
       if (current->edges[i]->original == 1 &&
@@ -67,14 +84,20 @@ bool Graph::BFS() {
         options.push(current->edges[i]);
       }
     }
+
+    // If the queue is not empty.
     if (options.size() == 0) {
       return false;
     }
+
+    // Take the edge on the top of the queue.
     Edge* goTo = options.front();
     options.pop();
 
     goTo->to->backEdge = goTo->reverse;
     current = goTo->to;
+
+    // If you make it to the sink you have found a valid path.
     if (current->type == SINK) {
       return true;
     }
@@ -82,7 +105,11 @@ bool Graph::BFS() {
   return false;
 }
 
+// Delete the word dice and the sink node so that you do not have to remake the whole graph for each new word
+// you want to check the dice against.
 void Graph::deleteHalfGraph() {
+// Delete all the edges connecting the dice nodes to the word nodes and the edges connecting the word nodes to
+// the sink node.
   for (size_t i = 1; i < nodes.size(); i++) {
     for (size_t j = 0; j < nodes[i]->edges.size(); j++) {
       if (nodes[i]->edges[j]->from->type == WORD ||
@@ -99,6 +126,8 @@ void Graph::deleteHalfGraph() {
   }
   nodes.resize(numDice + 1);
 
+  // Reset the edges that are left.
+
   for (size_t j = 0; j < nodes[0]->edges.size(); j++) {
     nodes[0]->edges[j]->original = 1;
     nodes[0]->edges[j]->residual = 0;
@@ -111,47 +140,52 @@ void Graph::deleteHalfGraph() {
   }
 }
 void Graph::createNode(string input, NODE_TYPE type) {
-  if (type == SOURCE) {
+
+// Create a new source Node.
+if (type == SOURCE) {
     Node* newNode = new Node();
     newNode->id = 0;
     newNode->type = type;
     nodes.push_back(newNode);
-
-  } else if (type == WORD) {
+    
+    // Create a new Word Node.
+} else if (type == WORD) {
     int startingId = numDice + 1;
     // Loop through letters
     for (size_t i = 0; i < input.size(); i++) {
-      Node* newNode = new Node();
-      newNode->id = startingId;
-      newNode->type = type;
-      newNode->letters.resize(26, 0);
-      newNode->letters[input[i] - 'A'] = true;
-
-      // Loop through Dice nodes
-      for (int j = 1; j < numDice + 1; j++) {
-        if (nodes[j]->letters[input[i] - 'A']) {
-          Edge* edge = new Edge();
-          Edge* backEdge = new Edge();
-          edge->to = newNode;
-          edge->from = nodes[j];
-          backEdge->to = nodes[j];
-          backEdge->from = newNode;
-          edge->original = 1;
-          edge->residual = 0;
-          backEdge->original = 0;
-          backEdge->residual = 1;
+        Node* newNode = new Node();
+        newNode->id = startingId;
+        newNode->type = type;
+        newNode->letters.resize(26, 0);
+        newNode->letters[input[i] - 'A'] = true;
+        
+        // Loop through Dice nodes and create an edge between 
+        // the new word node and each of the dice nodes it should be connected to.
+        for (int j = 1; j < numDice + 1; j++) {
+            if (nodes[j]->letters[input[i] - 'A']) {
+                Edge* edge = new Edge();
+                Edge* backEdge = new Edge();
+                edge->to = newNode;
+                edge->from = nodes[j];
+                backEdge->to = nodes[j];
+                backEdge->from = newNode;
+                edge->original = 1;
+                edge->residual = 0;
+                backEdge->original = 0;
+                backEdge->residual = 1;
           edge->reverse = backEdge;
           backEdge->reverse = edge;
           nodes[j]->edges.push_back(edge);
           newNode->edges.push_back(backEdge);
         }
-      }
-      newNode->visited = false;
-      nodes.push_back(newNode);
-      startingId++;
     }
+    newNode->visited = false;
+    nodes.push_back(newNode);
+    startingId++;
+}
 
-  } else if (type == DICE) {
+// Create a new Dice Node.
+} else if (type == DICE) {
     Node* newNode = new Node();
     int startingId = nodes.size();
     newNode->id = startingId;
@@ -159,8 +193,10 @@ void Graph::createNode(string input, NODE_TYPE type) {
     newNode->visited = false;
     newNode->letters.resize(26, 0);
     for (size_t i = 0; i < input.size(); i++) {
-      newNode->letters[input[i] - 'A'] = true;
+        newNode->letters[input[i] - 'A'] = true;
     }
+
+    // Create an edge between the new Dice and the Source node.
     Edge* edge = new Edge();
     Edge* edgeBack = new Edge();
     edge->to = newNode;
@@ -177,12 +213,14 @@ void Graph::createNode(string input, NODE_TYPE type) {
     newNode->edges.push_back(edgeBack);
     numDice++;
     nodes.push_back(newNode);
-
-  } else if (type == SINK) {
+    
+    // Create a new Sink Node.
+} else if (type == SINK) {
     Node* newNode = new Node();
     newNode->id = nodes.size();
     newNode->type = type;
     for (size_t j = numDice + 1; j < nodes.size(); j++) {
+    // Create a new edge between each of the word nodes and the new SINK node.
       Edge* toSink = new Edge();
       Edge* fromSink = new Edge();
       toSink->from = nodes[j];
